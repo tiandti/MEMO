@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.9
+
 import tkinter as tk
 import queue
 

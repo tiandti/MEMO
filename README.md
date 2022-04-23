@@ -1,30 +1,90 @@
-## MEMO
+# MEMO
 
-> SOS: Repository under development
+*Repository is under development*
 
-# python Version
-Raspberry pi: Python 3.9.2
+> Application that will run on a raspberry pi SBC to help with Memories in art
+
+
+## Setup
+
+This project works with python 3.9.x.
+You can check your python version with the following command:
+
+```sh
 python3 --version
+```
 
-# Install
+#### if on GNU/Linux
+
+```sh
+sudo apt install python3.9
+```
+
+#### if on Windows
+
+Get it from https://www.python.org/downloads/ .
+
+
+### Install virtualenv
+
+```sh
 sudo apt install python3-virtualenv
+```
 
-# Git clone etc
-TODO
+### Fetch the repository with git clone
 
-# Inside the repository
-virtualenv -p python3 .venv
+Create a new directory for the project and enter it.
 
-# Get inside the invironment
-if Windows:   .venv\Scripts\activate.bat
-if Raspberry:  source .venv/bin/activate
+```sh
+mkdir -p ~/proj/
+cd ~/proj/memo/
+```
 
-# Update pip
+Get the repository with git.
+
+```sh
+git clone https://github.com/tiandti/MEMO.git
+cd memo
+```
+
+### Create a virtual environment
+
+```sh
+virtualenv -p python3.9 .venv
+```
+
+### Get inside the invironment
+
+#### if on GNU/Linux
+```sh
+source .venv/bin/activate
+```
+
+#### if on windows
+```sh
+.venv\Scripts\activate.bat
+```
+
+### Update pip
+```sh
 python -m pip install --upgrade pip
+```
 
-# Install requirements.txt
+### Install requirements.txt
+```sh
 pip install -r requirements.txt
+```
 
-# Run it
-Receiver: python main.py -d
-Transmitter: python main.py --bar <path to an image>
+## Run it
+
+### Receiver
+
+```sh
+python main.py -d
+```
+
+### Transmitter
+
+```sh
+python main.py --bar <path to an image>
+```

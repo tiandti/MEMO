@@ -5,25 +5,26 @@ from memo.connectors import Server
 from memo.ui import UI
 from memo.app import App
 
-import threading
 import argparse
 import time
 import sys
 
 
+dt = 0.5
+
+
 def init(arg):
 	con = arg["connection"]
 	print("Init")
-	time.sleep(1)
+	time.sleep(dt)
 	return ("on")
 
 def on(arg):
-	# con = Client()
 	con = arg["connection"]
 	image = "./media/hockney.png"
 	print(f"on - {image}")
 	con.send(image.encode())
-	time.sleep(1)
+	time.sleep(dt)
 	return ("off")
 
 def off(arg):
@@ -31,7 +32,7 @@ def off(arg):
 	image = "./media/hockney2.jpg"
 	print(f"off - {image}")
 	con.send(image.encode())
-	time.sleep(1)
+	time.sleep(dt)
 	return ("on")
 
 def exit(arg):
@@ -39,7 +40,7 @@ def exit(arg):
 	time.sleep(1)
 	return ("exit")
 
-def main():
+def arguments():
 	parser = argparse.ArgumentParser(description='Memo kiosk client/server')
 	parser.add_argument("-a", "--address",
 			    help = "Selects the server ip address or hostname. Default is '127.0.0.1'",
@@ -50,11 +51,20 @@ def main():
 	parser.add_argument("-d", "--daemon",
 			    help = "Run as a daemon.",
 			    action='store_true')
+	parser.add_argument("-f", "--fullscreen",
+			    help = "Run in fullscreen mode. Default is no.",
+			    action='store_true')
 	args = parser.parse_args()
 
 	ip = str(args.address)
 	port = int(args.port)
 	isDaemon = args.daemon
+	isFullscreen = args.fullscreen
+	return ip, port, isDaemon, isFullscreen
+
+
+def main():
+	ip, port, isDaemon, isFullscreen = arguments()
 
 	if isDaemon and ip != '127.0.0.1':
 		print("[ERROR] Can not run daemon in a remote ip")
@@ -62,17 +72,16 @@ def main():
 
 	if isDaemon:
 		con = Server(port)
-		ui = UI()
+		ui = UI(isFullscreen)
 		while ui.isRunning():
 
 			msg = con.receive()
 			if msg:
-				msg = msg.decode("utf-8")
-				print(f"[DEBUG]: Msg = '{msg}'")
-
 				# Change the photo to the ui
+				msg = msg.decode("utf-8")
 				ui.replace(msg)
 
+				# Acknowledge to the client
 				reply = "Done"
 				con.send(reply.encode("utf-8"))
 	else:
@@ -86,12 +95,9 @@ def main():
 		while True:
 			sm.run()
 
-		exit(0)
-	print("main end")
 
 if __name__== "__main__" :
 	try:
 		main()
 	except KeyboardInterrupt:
-		print('\nHello user you have pressed ctrl-c button.')
-		pass
+		print('\nExiting.')

@@ -44,13 +44,18 @@ class Server:
 
 	def __del__(self):
 		print("[Server]: Closing")
-		self.shutdown(socket.SHUT_RDWR)
 		self.socket.close()
+		self.socket = None
 
 	def send(self, data):
-		print(f"[Server]: Sending {data}")
-		self.socket.send(data)
-		print(f"[Server]: Done")
+		rv = False
+		try:
+			self.socket.send(data)
+			rv = True
+		except BrokenPipeError:
+			pass
+		return rv
+
 
 	def sendall(self, data):
 		raise NotImplementedError
@@ -68,7 +73,7 @@ class Server:
 		sock = key.fileobj
 		data = key.data
 		if mask & selectors.EVENT_READ:
-			recv_data = sock.recv(1024)  # Should be ready to read
+			recv_data = sock.recv(4096)  # Should be ready to read
 			if recv_data:
 				data.outb += recv_data
 				self.data.put(recv_data)
@@ -101,6 +106,9 @@ class Server:
 		if length > 0:
 			data = self.data.get()
 		return data
+
+	def isAlive(self):
+		return self.socket is not None
 
 
 if __name__== "__main__" :

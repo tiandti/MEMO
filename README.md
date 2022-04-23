@@ -80,11 +80,11 @@ pip install -r requirements.txt
 ### Receiver
 
 ```sh
-python main.py -d
+python main.py -d -f
 ```
 
 ### Transmitter
 
 ```sh
-python main.py --bar <path to an image>
+python main.py
 ```

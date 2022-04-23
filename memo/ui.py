@@ -6,9 +6,10 @@ import queue
 
 
 class UI:
-	def __init__(self):
+	def __init__(self, fullscreen=False):
 		self.event = threading.Event()
 		self.image_path = ""
+		self.fullscreen=fullscreen
 
 		self.quitEvent = threading.Event()
 
@@ -26,6 +27,7 @@ class UI:
 
 	def _thread(self):
 		self.root = tk.Tk()
+		self.root.attributes('-fullscreen', self.fullscreen)
 		self.root.bind("<Escape>", lambda x: self.close())
 		height = self.root.winfo_screenheight()
 		width = self.root.winfo_screenwidth()

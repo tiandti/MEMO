@@ -10,7 +10,6 @@ class App(FSM):
 	def run(self):
 		d = dict()
 		d["connection"] = self.connection
-		# while True:
 		super().run(d)
 
 

@@ -110,8 +110,9 @@ def socketTask(ip, port, args, ui):
 
 def main():
 	parser = argparse.ArgumentParser(description='Memo kiosk client/server')
-	parser.add_argument('--bar')
-
+	parser.add_argument('--bar',
+			    help = "Media path.",
+			    default = "")
 	parser.add_argument("-a", "--address",
 			    help = "Selects the server ip address or hostname. Default is '127.0.0.1'",
 			    default = "127.0.0.1")
@@ -132,12 +133,9 @@ def main():
 		#socketThread = threading.Thread(target=socketTask, args=(ip, port, args, None,))
 		#socketThread.start()
 		con = Client(ip, port)
-		print("1")
 		con.send(args.bar.encode())
-		print("2")
 		msg = con.receive()
 		print(f"msg: {msg.decode()}")
-		print("3")
 
 		exit(0)
 	else:

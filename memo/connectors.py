@@ -21,20 +21,18 @@ class Client(IConnection):
 		context = zmq.Context()
 		self.socket = context.socket(zmq.REQ)
 		connectionStr = f"tcp://{ip}:{port}"
-		print(f"connectionStr = '{connectionStr}'")
 		self.socket.connect(connectionStr)
 		print("Done")
 
 	def send(self, data):
 		print(f"Sending {data}")
 		self.socket.send(data)
-		print(f"Sending finished")
+		print(f"Done")
 
 	def receive(self):
 		data = self.socket.recv()
 		print(f"Receiced {data}")
 		return data
-		print(f"Receive finished")
 
 
 class Server(IConnection):
@@ -43,13 +41,13 @@ class Server(IConnection):
 		context = zmq.Context()
 		self.socket = context.socket(zmq.REP)
 		connectionStr = f"tcp://{ip}:{port}"
-		print(f"connectionStr = '{connectionStr}'")
 		self.socket.bind(connectionStr)
 		print("Done")
 
 	def send(self, data):
 		print(f"Sending {data}")
 		self.socket.send(data)
+		print(f"Done")
 
 	def receive(self):
 		data = self.socket.recv()

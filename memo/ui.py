@@ -9,7 +9,6 @@ class UI:
 	def __init__(self):
 		self.event = threading.Event()
 		self.image_path = ""
-		self.running = False
 
 		self.quitEvent = threading.Event()
 
@@ -19,7 +18,7 @@ class UI:
 		self.thread.start()
 
 	def isRunning(self):
-		return self.running
+		return not self.quitEvent.isSet()
 
 	def close(self):
 		print("UI closing")
@@ -35,8 +34,6 @@ class UI:
 		# Create a image holder
 		self.media = tk.Label(image="", background="black")
 		self.media.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-
-		self.running = True
 
 		while not self.quitEvent.isSet():
 
@@ -71,13 +68,11 @@ class UI:
 				# just on general principles, although we don't expect this
 				# branch to be taken in this case, ignore this exception!
 				pass
-		self.q = None
-		self.running = False
-		print("Done")
+		print("UI internal Thread Done")
 
 
 	def replace(self, image_path):
-		if self.q:
+		if self.isRunning():
 			self.q.put(image_path)
 
 

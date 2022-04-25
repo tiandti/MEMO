@@ -6,7 +6,7 @@ import os
 # Disable tensorflow logging to stdout
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-import transform
+from memo.fst import transform
 import tensorflow as tf
 import numpy as np
 

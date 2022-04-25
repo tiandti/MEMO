@@ -1,5 +1,6 @@
 """User interface."""
 
+from memo.imgEncoder import decodeImg
 import tkinter as tk
 # from tkvideo import tkvideo
 from PIL import Image, ImageTk
@@ -7,7 +8,6 @@ import threading
 import queue
 import imageio
 
-# from memo.fst.utils import get_img
 
 class UI:
 	"""User interface."""
@@ -69,7 +69,11 @@ class UI:
 							# raw_image = Image.fromarray(get_img(image_path))
 
 							# 3 - ImageIO
-							raw_image = Image.fromarray(imageio.imread(image_path, pilmode='RGB'))
+							# raw_image = Image.fromarray(imageio.imread(image_path, pilmode='RGB'))
+
+							# 4 - Socket ImageIO
+							image = decodeImg(image_path)
+							raw_image = Image.fromarray(image)
 
 							image = ImageTk.PhotoImage(raw_image)
 						except FileNotFoundError:

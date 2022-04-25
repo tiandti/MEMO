@@ -8,8 +8,8 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 from argparse import ArgumentParser
 from collections import defaultdict
-from memo.fst.utils import save_img, get_img, exists, list_files
-from memo.fst import transform
+from utils import save_img, get_img, exists, list_files
+import transform
 import tensorflow as tf
 import numpy as np
 

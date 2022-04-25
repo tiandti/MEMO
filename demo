@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+mkdir -p output
+rm -rf output/*
+python memo/fst/fst.py

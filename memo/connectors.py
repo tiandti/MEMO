@@ -85,7 +85,6 @@ class Server:
 		if mask & selectors.EVENT_READ:
 			recv_data = sock.recv(4096)  # Should be ready to read
 			if recv_data:
-				data.outb += recv_data
 				self.data.put(recv_data)
 				# print(f"[Server]: Echo {data.outb!r} to {data.addr}")
 			else:

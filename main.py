@@ -11,20 +11,35 @@ import argparse
 import time
 import sys
 import imageio
+import random
+import os
 
 
-image = "media/hockney.png"
+image = None
+
+
+def getRandomFile(directory):
+	"""Return a random file from the directory."""
+	file_name = random.choice(os.listdir(directory))
+	return os.path.join(directory + file_name)
+
 
 def init(arg):
 	"""Init state."""
+	print("---------------------------------------------------")
 	print("Init")
+	# global image
+	# print(f"Image: {image}")
+	time.sleep(0.01)
 	return ("take_photo")
 
 
 def take_photo(arg):
 	"""Take photo state."""
 	con = arg["connection"]
-	print("Taking photo of person... ")
+	global image
+	image = getRandomFile("media/")
+	print(f"Taking photo of person - {image}... ")
 
 	image_out = imageio.imread(image, pilmode='RGB')
 	data = encodeImg(image_out)
@@ -41,10 +56,12 @@ def take_photo(arg):
 def filter_photo(arg):
 	"""Filter photo state."""
 	con = arg["connection"]
-	print("Calculating filter")
 
 	image_in = imageio.imread(image, pilmode='RGB')
-	image_out = fst(image_in, "models/scream.ckpt")
+	fstModel = getRandomFile("models/")
+	print(f"Calculating filter '{fstModel}'... Please wait...")
+	image_out = fst(image_in, fstModel)
+	print("Filter ready")
 
 	data = encodeImg(image_out)
 	con.send("IMG".encode())
@@ -54,13 +71,16 @@ def filter_photo(arg):
 	con.send("OK".encode())
 	time.sleep(0.01)
 
+	time.sleep(10)
+
 	return ("acknoledge")
 
 
 def acknoledge(arg):
 	"""Acknoledge state."""
 	print("Please press a button to reset...")
-	test = input()
+	#input()
+	print("")
 	return ("init")
 
 

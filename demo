@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+mkdir -p output
+python evaluate.py --checkpoint models/scream.ckpt --in-path media/image.jpeg --out-path output/out.jpg

@@ -5,7 +5,9 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import threading
 import queue
+import imageio
 
+# from memo.fst.utils import get_img
 
 class UI:
 	"""User interface."""
@@ -60,7 +62,15 @@ class UI:
 					image = ""
 					if image_path != "":
 						try:
-							raw_image = Image.open(image_path)
+							# 1 - Pillow
+							# raw_image = Image.open(image_path)
+
+							# 2 - FST (ImageIO)
+							# raw_image = Image.fromarray(get_img(image_path))
+
+							# 3 - ImageIO
+							raw_image = Image.fromarray(imageio.imread(image_path, pilmode='RGB'))
+
 							image = ImageTk.PhotoImage(raw_image)
 						except FileNotFoundError:
 							image = ""

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
 mkdir -p output
-python memo/fst/evaluate.py --checkpoint models/scream.ckpt --in-path media/image.jpeg --out-path output/out.jpg
+rm -rf output/*
+python memo/fst/fst.py

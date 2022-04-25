@@ -6,21 +6,20 @@ import os
 # Disable tensorflow logging to stdout
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-from argparse import ArgumentParser
-from collections import defaultdict
-from utils import get_img
 import transform
 import tensorflow as tf
 import numpy as np
 
 
 # get img_shape
-# image ImageIo bytes
-def fst(image, data_in, checkpoint_dir):
+# image: ImageIo bytes
+# checkpoint_dir: Checkpoint directory or path
+def fst(image, checkpoint_dir):
     """Get img_shape."""
-    device_t ='/gpu:0'
+    if image is None or checkpoint_dir is None:
+        return None
 
-    # img_shape = get_img(data_in[0]).shape
+    device_t = '/gpu:0'
     img_shape = image.shape
 
     g = tf.Graph()
@@ -43,12 +42,8 @@ def fst(image, data_in, checkpoint_dir):
         else:
             saver.restore(sess, checkpoint_dir)
 
-        curr_batch_in = data_in[0:1]
         X = np.zeros(batch_shape, dtype=np.float32)
-        for j, path_in in enumerate(curr_batch_in):
-            img = get_img(path_in)
-            assert img.shape == img_shape, 'Images have different dimensions.'
-            X[j] = img
+        X[0] = image
 
         _preds = sess.run(preds, feed_dict={img_placeholder: X})
         img = np.clip(_preds[0], 0, 255).astype(np.uint8)
@@ -57,7 +52,18 @@ def fst(image, data_in, checkpoint_dir):
 
 
 if __name__ == '__main__':
+    import sys
     import imageio
-    image_in = imageio.imread("media/hockney.png", pilmode='RGB')
-    image_out = fst(image_in, ["media/hockney.png"], "models/scream.ckpt")
-    imageio.imwrite("output/out.jpg", image_out)
+
+    image_in = None
+    checkpoint = None
+    if len(sys.argv) == 2:
+        filepath = sys.argv[1]
+        image_in = imageio.imread(filepath, pilmode='RGB')
+        print(f"Read '{filepath}'")
+    if len(sys.argv) == 3:
+        checkpoint = sys.argv[2]
+    image_out = fst(image_in, "models/scream.ckpt")
+    if image_out is not None:
+        imageio.imwrite("output/out.jpg", image_out)
+        print("Wrote 'output/out.jpg'")

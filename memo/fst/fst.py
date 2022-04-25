@@ -15,19 +15,14 @@ import numpy as np
 
 
 # get img_shape
-def fst(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=1):
+def fst(data_in, checkpoint_dir, device_t='/gpu:0', batch_size=1):
     """Get img_shape."""
-    assert len(paths_out) > 0
     is_paths = type(data_in[0]) == str
     if is_paths:
-        assert len(data_in) == len(paths_out)
         img_shape = get_img(data_in[0]).shape
-    else:
-        assert data_in.size[0] == len(paths_out)
-        # img_shape = X[0].shape
 
     g = tf.Graph()
-    batch_size = min(len(paths_out), batch_size)
+    batch_size = 1
     # curr_num = 0
     soft_config = tf.compat.v1.ConfigProto(allow_soft_placement=True)
     soft_config.gpu_options.allow_growth = True
@@ -47,10 +42,9 @@ def fst(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=1):
         else:
             saver.restore(sess, checkpoint_dir)
 
-        num_iters = int(len(paths_out) / batch_size)
+        num_iters = 1
         for i in range(num_iters):
             pos = i * batch_size
-            curr_batch_out = paths_out[pos:pos + batch_size]
             if is_paths:
                 curr_batch_in = data_in[pos:pos + batch_size]
                 X = np.zeros(batch_shape, dtype=np.float32)
@@ -64,20 +58,12 @@ def fst(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=1):
                 X = data_in[pos:pos + batch_size]
 
             _preds = sess.run(preds, feed_dict={img_placeholder: X})
-            for j, path_out in enumerate(curr_batch_out):
-                # return save_img(path_out, _preds[j])
-                img = np.clip(_preds[j], 0, 255).astype(np.uint8)
-                return img
-
-        remaining_in = data_in[num_iters * batch_size:]
-        remaining_out = paths_out[num_iters * batch_size:]
-    if len(remaining_in) > 0:
-        print("[ERROR]: There is remaining...")
-        fst(remaining_in, remaining_out, checkpoint_dir, device_t=device_t, batch_size=1)
+            img = np.clip(_preds[0], 0, 255).astype(np.uint8)
+            return img
     return None
 
 
 if __name__ == '__main__':
     import imageio
-    img = fst(["media/hockney.png"], [""], "models/scream.ckpt")
+    img = fst(["media/hockney.png"], "models/scream.ckpt")
     imageio.imwrite("output/out.jpg", img)

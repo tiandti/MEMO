@@ -2,6 +2,7 @@
 
 from abc import ABC
 
+
 class FSM(ABC):
 	"""Finite state machine."""
 

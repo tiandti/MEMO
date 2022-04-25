@@ -117,9 +117,6 @@ class Server:
 			data = self.data.get()
 		return data
 
-	# def isAlive(self):
-	# 	return self.socket is not None
-
 
 if __name__ == "__main__":
 	pass

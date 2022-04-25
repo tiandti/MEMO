@@ -5,7 +5,6 @@
 from memo.connectors import Server
 from memo.ui import UI
 from memo.app import App
-
 import argparse
 import time
 import sys
@@ -20,6 +19,7 @@ def init(arg):
 	time.sleep(dt)
 	return ("on")
 
+
 def on(arg):
 	"""On state."""
 	con = arg["connection"]
@@ -28,6 +28,7 @@ def on(arg):
 	con.send(image.encode())
 	time.sleep(dt)
 	return ("off")
+
 
 def off(arg):
 	"""Off state."""
@@ -38,11 +39,13 @@ def off(arg):
 	time.sleep(dt)
 	return ("on")
 
+
 def exit(arg):
 	"""Exit state."""
 	print("exit")
 	time.sleep(1)
 	return ("exit")
+
 
 def arguments():
 	"""Command line arguments."""
@@ -66,6 +69,7 @@ def arguments():
 	isDaemon = args.daemon
 	isFullscreen = args.fullscreen
 	return ip, port, isDaemon, isFullscreen
+
 
 def main():
 	"""Application starts here."""

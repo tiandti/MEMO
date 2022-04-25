@@ -3,6 +3,7 @@
 from .connectors import Client
 from .fsm import FSM
 
+
 class App(FSM):
 	"""Application that encapsulates a finite state machine and a client socket connection."""
 

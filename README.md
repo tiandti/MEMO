@@ -25,10 +25,18 @@ sudo apt install python3.9
 Get it from https://www.python.org/downloads/ .
 
 
-### Install virtualenv
+### Upgrade pip
 
 ```sh
-sudo apt install python3-virtualenv
+pip install --upgrade pip
+```
+
+### Install virtualenv
+
+This is ok to run outside of the virtual environment.
+
+```sh
+pip install virtualenv
 ```
 
 ### Fetch the repository with git clone
@@ -53,7 +61,7 @@ cd memo
 virtualenv -p python3.9 .venv
 ```
 
-### Get inside the invironment
+### Get inside the environment
 
 #### if on GNU/Linux
 ```sh

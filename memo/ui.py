@@ -1,3 +1,5 @@
+"""User interface."""
+
 import tkinter as tk
 # from tkvideo import tkvideo
 from PIL import Image, ImageTk
@@ -6,10 +8,13 @@ import queue
 
 
 class UI:
+	"""User interface."""
+
 	def __init__(self, fullscreen=False):
+		"""Initialise the user interface."""
 		self.event = threading.Event()
 		self.image_path = ""
-		self.fullscreen=fullscreen
+		self.fullscreen = fullscreen
 
 		self.quitEvent = threading.Event()
 
@@ -19,19 +24,22 @@ class UI:
 		self.thread.start()
 
 	def isRunning(self):
+		"""Check if the user interface is still running."""
 		return not self.quitEvent.isSet()
 
 	def close(self):
-		print("UI closing")
+		"""Close the user interface."""
+		print("[UI]: Closing")
 		self.quitEvent.set()
 
 	def _thread(self):
+		"""Thread function that will handle the user interface."""
 		self.root = tk.Tk()
 		self.root.attributes('-fullscreen', self.fullscreen)
 		self.root.bind("<Escape>", lambda x: self.close())
 		height = self.root.winfo_screenheight()
 		width = self.root.winfo_screenwidth()
-		print(f"Screen: {width} x {height} (in pixels)\n")
+		print(f"[UI]: Screen: {width} x {height} (in pixels)\n")
 
 		# Create a image holder
 		self.media = tk.Label(image="", background="black")
@@ -70,13 +78,12 @@ class UI:
 				# just on general principles, although we don't expect this
 				# branch to be taken in this case, ignore this exception!
 				pass
-		print("UI internal Thread Done")
-
 
 	def replace(self, image_path):
+		"""Replace the image in the user interface."""
 		if self.isRunning():
 			self.q.put(image_path)
 
 
-if __name__== "__main__" :
+if __name__ == "__main__":
 	pass

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.9
 
-from memo.connectors import Client
+"""Memo application."""
+
 from memo.connectors import Server
 from memo.ui import UI
 from memo.app import App
@@ -14,12 +15,13 @@ dt = 0.5
 
 
 def init(arg):
-	con = arg["connection"]
+	"""Init state."""
 	print("Init")
 	time.sleep(dt)
 	return ("on")
 
 def on(arg):
+	"""On state."""
 	con = arg["connection"]
 	image = "./media/hockney.png"
 	print(f"on - {image}")
@@ -28,6 +30,7 @@ def on(arg):
 	return ("off")
 
 def off(arg):
+	"""Off state."""
 	con = arg["connection"]
 	image = "./media/hockney2.jpg"
 	print(f"off - {image}")
@@ -36,24 +39,26 @@ def off(arg):
 	return ("on")
 
 def exit(arg):
+	"""Exit state."""
 	print("exit")
 	time.sleep(1)
 	return ("exit")
 
 def arguments():
+	"""Command line arguments."""
 	parser = argparse.ArgumentParser(description='Memo kiosk client/server')
 	parser.add_argument("-a", "--address",
-			    help = "Selects the server ip address or hostname. Default is '127.0.0.1'",
-			    default = "127.0.0.1")
+	                    help="Selects the server ip address or hostname. Default is '127.0.0.1'",
+	                    default="127.0.0.1")
 	parser.add_argument("-p", "--port",
-			    help = "When mode is socket, selects the server port. Default is '5555'",
-			    type = int, default = 5555)
+	                    help="When mode is socket, selects the server port. Default is '5555'",
+	                    type=int, default=5555)
 	parser.add_argument("-d", "--daemon",
-			    help = "Run as a daemon.",
-			    action='store_true')
+	                    help="Run as a daemon.",
+	                    action='store_true')
 	parser.add_argument("-f", "--fullscreen",
-			    help = "Run in fullscreen mode. Default is no.",
-			    action='store_true')
+	                    help="Run in fullscreen mode. Default is no.",
+	                    action='store_true')
 	args = parser.parse_args()
 
 	ip = str(args.address)
@@ -62,8 +67,8 @@ def arguments():
 	isFullscreen = args.fullscreen
 	return ip, port, isDaemon, isFullscreen
 
-
 def main():
+	"""Application starts here."""
 	ip, port, isDaemon, isFullscreen = arguments()
 
 	if isDaemon and ip != '127.0.0.1':
@@ -96,7 +101,7 @@ def main():
 			sm.run()
 
 
-if __name__== "__main__" :
+if __name__ == "__main__":
 	try:
 		main()
 	except KeyboardInterrupt:

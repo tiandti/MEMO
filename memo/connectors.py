@@ -1,3 +1,5 @@
+"""Network client/server."""
+
 import socket
 import selectors
 import types
@@ -6,19 +8,27 @@ import queue
 
 
 class Client:
+	"""Network communication as a client."""
+
 	def __init__(self, ip, port):
+		"""Initialise the client."""
 		self.con = VClient(host=ip, port=port, logging=True)
 
 	def send(self, data):
+		"""Send data."""
 		self.con.sent(data.decode())
 
 	def receive(self):
+		"""Receive data."""
 		data = self.con.receive()
 		return data
 
 
 class Server:
+	"""Network communication as the server."""
+
 	def __init__(self, port):
+		"""Initialise the server."""
 		# Assign attributes
 		host = 'localhost'
 		self.port = port
@@ -41,13 +51,14 @@ class Server:
 		# Select socket
 		self.selector.register(self.socket, selectors.EVENT_READ, data=None)
 
-
 	def __del__(self):
+		"""Deinitialise the server."""
 		print("[Server]: Closing")
 		self.socket.close()
 		self.socket = None
 
 	def send(self, data):
+		"""Send data."""
 		rv = False
 		try:
 			self.socket.send(data)
@@ -56,10 +67,9 @@ class Server:
 			pass
 		return rv
 
-
 	def sendall(self, data):
+		"""Send data to all clients."""
 		raise NotImplementedError
-
 
 	def _accept_wrapper(self, sock):
 		conn, addr = sock.accept()  # Should be ready to read
@@ -92,7 +102,7 @@ class Server:
 		"""
 
 	def receive(self):
-
+		"""Receive data."""
 		# while True:
 		data = None
 		events = self.selector.select(timeout=1.0)
@@ -107,9 +117,9 @@ class Server:
 			data = self.data.get()
 		return data
 
-	def isAlive(self):
-		return self.socket is not None
+	# def isAlive(self):
+	# 	return self.socket is not None
 
 
-if __name__== "__main__" :
+if __name__ == "__main__":
 	pass

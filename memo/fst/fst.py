@@ -8,22 +8,23 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 from argparse import ArgumentParser
 from collections import defaultdict
-from utils import save_img, get_img, exists, list_files
+from utils import get_img
 import transform
 import tensorflow as tf
 import numpy as np
 
 
 # get img_shape
-def fst(data_in, checkpoint_dir, device_t='/gpu:0', batch_size=1):
+# image ImageIo bytes
+def fst(image, data_in, checkpoint_dir):
     """Get img_shape."""
-    is_paths = type(data_in[0]) == str
-    if is_paths:
-        img_shape = get_img(data_in[0]).shape
+    device_t ='/gpu:0'
+
+    # img_shape = get_img(data_in[0]).shape
+    img_shape = image.shape
 
     g = tf.Graph()
     batch_size = 1
-    # curr_num = 0
     soft_config = tf.compat.v1.ConfigProto(allow_soft_placement=True)
     soft_config.gpu_options.allow_growth = True
     with g.as_default(), g.device(device_t), \
@@ -42,28 +43,21 @@ def fst(data_in, checkpoint_dir, device_t='/gpu:0', batch_size=1):
         else:
             saver.restore(sess, checkpoint_dir)
 
-        num_iters = 1
-        for i in range(num_iters):
-            pos = i * batch_size
-            if is_paths:
-                curr_batch_in = data_in[pos:pos + batch_size]
-                X = np.zeros(batch_shape, dtype=np.float32)
-                for j, path_in in enumerate(curr_batch_in):
-                    img = get_img(path_in)
-                    assert img.shape == img_shape, \
-                        'Images have different dimensions. ' +  \
-                        'Resize images or use --allow-different-dimensions.'
-                    X[j] = img
-            else:
-                X = data_in[pos:pos + batch_size]
+        curr_batch_in = data_in[0:1]
+        X = np.zeros(batch_shape, dtype=np.float32)
+        for j, path_in in enumerate(curr_batch_in):
+            img = get_img(path_in)
+            assert img.shape == img_shape, 'Images have different dimensions.'
+            X[j] = img
 
-            _preds = sess.run(preds, feed_dict={img_placeholder: X})
-            img = np.clip(_preds[0], 0, 255).astype(np.uint8)
-            return img
+        _preds = sess.run(preds, feed_dict={img_placeholder: X})
+        img = np.clip(_preds[0], 0, 255).astype(np.uint8)
+        return img
     return None
 
 
 if __name__ == '__main__':
     import imageio
-    img = fst(["media/hockney.png"], "models/scream.ckpt")
-    imageio.imwrite("output/out.jpg", img)
+    image_in = imageio.imread("media/hockney.png", pilmode='RGB')
+    image_out = fst(image_in, ["media/hockney.png"], "models/scream.ckpt")
+    imageio.imwrite("output/out.jpg", image_out)

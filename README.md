@@ -68,10 +68,17 @@ virtualenv -p python3.9 .venv
 source .venv/bin/activate
 ```
 
-#### if on windows
+#### if on windows (Git bash)
 ```sh
-.venv\Scripts\activate.bat
+source .venv\Scripts\activate
 ```
+
+#### If you want to download the code
+
+```sh
+git clone https://www.github.com/tiandti/MEMO.git
+```
+
 
 ### Update pip
 ```sh

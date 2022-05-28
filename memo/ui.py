@@ -1,6 +1,7 @@
 """User interface."""
 
 from memo.artistic.photo import Photo
+from memo.text import Text
 from PIL import ImageTk
 import tkinter as tk
 import threading
@@ -41,9 +42,11 @@ class UI:
 		width = self.root.winfo_screenwidth()
 		print(f"[UI]: Screen: {width} x {height} (in pixels)\n")
 
-		# Create a image holder
-		self.media = tk.Label(image="", background="black")
+		# Create an image holder with a text
+		self.message = tk.StringVar()
+		self.media = tk.Label(image="", fg='white', font=("Arial", 48, "bold"), textvariable=self.message, compound='center', background="black")
 		self.media.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+		self.message.set("")
 
 		while not self.quitEvent.isSet():
 
@@ -65,8 +68,11 @@ class UI:
 							self.media.image = image
 						else:
 							pass
-					elif isinstance(obj, str):
+					elif isinstance(obj, Text):
 						print(f"New message: {obj}")
+						self.message.set(obj.txt)
+					elif isinstance(obj, str):
+						print(f"New str: {obj}")
 					else:
 						print(f"Uknown instance: '{type(obj)}'")
 				except queue.Empty:

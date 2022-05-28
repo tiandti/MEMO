@@ -3,6 +3,7 @@
 """Memo application."""
 
 from memo.artistic.photo import Photo
+from memo.text import Text
 from memo.imgEncoder import encodeImg
 from memo.connectors import Server
 from memo.fst.fst import fst
@@ -31,15 +32,52 @@ def getRandomFile(directory):
 	return image_path
 
 
+def getRandomFilter(image):
+	filters = ["hockney", "gray", "swirl", "rag"]
+	filterType = random.choice(filters)
+	print(f"Filter: {filterType}")
+
+	if filterType == "hockney":
+		background_photo = image.copy()
+		image.as_hockney(100, False)
+		background_photo.as_test()
+		background_photo.merge(image)
+		image = background_photo
+	elif filterType == "gray":
+		image.as_gray()
+	elif filterType == "swirl":
+		image.swirl(5, 100, 1)
+	elif filterType == "rag":
+		image.as_rag()
+	else:
+		image.as_test()
+
+	return image
+
+
+def gui_text(con, txt):
+	base64_str = codecs.encode(pickle.dumps(Text(txt)), "base64").decode()
+	con.send(base64_str)
+
+
+def gui_image(con, image):
+	serialized_image = image.serialise()
+	con.send(serialized_image)
+
+
 def init(arg):
 	"""Init state."""
-	time.sleep(0.01)
+	con = arg["connection"]
+	gui_text(con, "Initializing...")
+	time.sleep(5)
 	return ("idle")
 
 
 def idle(arg):
 	"""Idle state."""
+	con = arg["connection"]
 	time.sleep(2)
+	gui_text(con, "")
 	return ("take_photo")
 
 
@@ -48,13 +86,16 @@ def take_photo(arg):
 	con = arg["connection"]
 	global image
 
+	gui_text(con, "Please take a photo")
+	time.sleep(5)
 	image_path = getRandomFile("media/faces")
 	print(f"Taking photo of person - {image_path}... ")
 
 	image = Photo(image_path)
-	serialized_image = image.serialise()
 
-	con.send(serialized_image)
+	gui_image(con, image)
+	gui_text(con, "")
+
 	time.sleep(2)
 
 	return ("filter_photo")
@@ -65,14 +106,16 @@ def filter_photo(arg):
 	con = arg["connection"]
 	global image
 
-	background_photo = image.copy()
-	image.as_hockney(100, False)
-	background_photo.as_test()
-	background_photo.merge(image)
-	image = background_photo
-	serialized_image = image.serialise()
+	image = getRandomFilter(image)
 
-	con.send(serialized_image)
+	#background_photo = image.copy()
+	#image.as_hockney(100, False)
+	#background_photo.as_test()
+	#background_photo.merge(image)
+	#image = background_photo
+
+	gui_image(con, image)
+
 	time.sleep(5)
 
 	return ("acknoledge")
@@ -101,8 +144,16 @@ def filter_photo_old(arg):
 
 def acknoledge(arg):
 	"""Acknoledge state."""
+	global image
+
+	out_path = "/tmp/memo"
+	if not os.path.exists(out_path):
+		os.mkdir(out_path)
+	filename = time.strftime("%Y%m%d-%H%M%S") + ".jpeg"
+	image.save(os.path.join(out_path + filename))
+
 	print("Please press a button to reset...")
-	input()
+	# input()
 	print("")
 	return ("idle")
 

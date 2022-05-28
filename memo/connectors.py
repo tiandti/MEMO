@@ -1,6 +1,7 @@
 """Network client/server."""
 
 import socket
+import time
 import selectors
 import types
 from virtualbus.client import Client as VClient
@@ -14,9 +15,12 @@ class Client:
 		"""Initialise the client."""
 		self.con = VClient(host=ip, port=port, logging=True)
 
-	def send(self, data):
+	def send(self, data, wait_t=0.1):
 		"""Send data."""
-		self.con.sent(data.decode())
+		self.con.sent(data)
+		time.sleep(wait_t)
+		self.con.sent("OK")
+		time.sleep(wait_t)
 
 	def receive(self):
 		"""Receive data."""

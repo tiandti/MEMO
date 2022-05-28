@@ -2,35 +2,44 @@
 
 """Memo application."""
 
+from memo.artistic.photo import Photo
 from memo.imgEncoder import encodeImg
 from memo.connectors import Server
 from memo.fst.fst import fst
 from memo.ui import UI
 from memo.app import App
+from memo.timer import Timer
 import argparse
 import time
 import sys
 import imageio
 import random
 import os
+import codecs
+import pickle
 
 
 image = None
 
 
 def getRandomFile(directory):
-	"""Return a random file from the directory."""
-	file_name = random.choice(os.listdir(directory))
-	return os.path.join(directory + file_name)
+	files = []
+	for dirpath, _, filenames in os.walk(directory):
+		for f in filenames:
+			files.append(os.path.join(dirpath, f))
+	image_path = random.choice(files)
+	return image_path
 
 
 def init(arg):
 	"""Init state."""
-	print("---------------------------------------------------")
-	print("Init")
-	# global image
-	# print(f"Image: {image}")
 	time.sleep(0.01)
+	return ("idle")
+
+
+def idle(arg):
+	"""Idle state."""
+	time.sleep(2)
 	return ("take_photo")
 
 
@@ -38,22 +47,38 @@ def take_photo(arg):
 	"""Take photo state."""
 	con = arg["connection"]
 	global image
-	image = getRandomFile("media/")
-	print(f"Taking photo of person - {image}... ")
 
-	image_out = imageio.imread(image, pilmode='RGB')
-	data = encodeImg(image_out)
-	con.send("IMG".encode())
-	time.sleep(0.01)
-	con.send(data.encode())
-	time.sleep(0.01)
-	con.send("OK".encode())
-	time.sleep(0.01)
+	image_path = getRandomFile("media/faces")
+	print(f"Taking photo of person - {image_path}... ")
+
+	image = Photo(image_path)
+	serialized_image = image.serialise()
+
+	con.send(serialized_image)
+	time.sleep(2)
 
 	return ("filter_photo")
 
 
 def filter_photo(arg):
+	"""Filter photo state."""
+	con = arg["connection"]
+	global image
+
+	background_photo = image.copy()
+	image.as_hockney(100, False)
+	background_photo.as_test()
+	background_photo.merge(image)
+	image = background_photo
+	serialized_image = image.serialise()
+
+	con.send(serialized_image)
+	time.sleep(5)
+
+	return ("acknoledge")
+
+
+def filter_photo_old(arg):
 	"""Filter photo state."""
 	con = arg["connection"]
 
@@ -64,8 +89,6 @@ def filter_photo(arg):
 	print("Filter ready")
 
 	data = encodeImg(image_out)
-	con.send("IMG".encode())
-	time.sleep(0.01)
 	con.send(data.encode())
 	time.sleep(0.01)
 	con.send("OK".encode())
@@ -79,9 +102,9 @@ def filter_photo(arg):
 def acknoledge(arg):
 	"""Acknoledge state."""
 	print("Please press a button to reset...")
-	#input()
+	input()
 	print("")
-	return ("init")
+	return ("idle")
 
 
 def exit(arg):
@@ -115,10 +138,12 @@ def arguments():
 	return ip, port, isDaemon, isFullscreen
 
 
-def receiveImage(con, timeout=10):
+def receive_with_ack(con, timeout=10):
 	"""Receive an image."""
 	byteImage = ""
 	flag = True
+	t = Timer()
+	t.start()
 	while flag:
 		msg = con.receive()
 		if msg:
@@ -127,6 +152,10 @@ def receiveImage(con, timeout=10):
 				flag = False
 			else:
 				byteImage += msg
+		if t.elapsed() > timeout:
+			byteImage = ""
+			flag = False
+
 	return byteImage
 
 
@@ -142,25 +171,16 @@ def main():
 		con = Server(port)
 		ui = UI(isFullscreen)
 		while ui.isRunning():
-
-			msg = con.receive()
-			if msg:
-				# Change the photo to the ui
-				msg = msg.decode("utf-8")
-
-				if msg == "IMG":
-					byteImage = receiveImage(con)
-					byteImage
-					ui.replace(byteImage)
-
-				# Acknowledge to the client
-				reply = "Done"
-				con.send(reply.encode("utf-8"))
+			serializedObj = receive_with_ack(con)
+			if serializedObj:
+				unpickledObj = pickle.loads(codecs.decode(serializedObj.encode(), "base64"))
+				ui.replace(unpickledObj)
 	else:
 		sm = App(ip, port)
 		sm.set_start("init")
 
 		sm.add_state("init", init)
+		sm.add_state("idle", idle)
 		sm.add_state("take_photo", take_photo)
 		sm.add_state("filter_photo", filter_photo)
 		sm.add_state("acknoledge", acknoledge)

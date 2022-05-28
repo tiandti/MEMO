@@ -1,12 +1,10 @@
 """User interface."""
 
-from memo.imgEncoder import decodeImg
+from memo.artistic.photo import Photo
+from PIL import ImageTk
 import tkinter as tk
-# from tkvideo import tkvideo
-from PIL import Image, ImageTk
 import threading
 import queue
-import imageio
 
 
 class UI:
@@ -54,32 +52,23 @@ class UI:
 
 			if self.q.qsize():
 				try:
-					image_path = self.q.get_nowait()
+					obj = self.q.get_nowait()
 					# Check contents of message and do whatever is needed. As a
 					# simple example, let's print it (in real life, you would
 					# suitably update the GUI's display in a richer fashion).
 					# print(msg)
-					image = ""
-					if image_path != "":
-						try:
-							# 1 - Pillow
-							# raw_image = Image.open(image_path)
 
-							# 2 - FST (ImageIO)
-							# raw_image = Image.fromarray(get_img(image_path))
-
-							# 3 - ImageIO
-							# raw_image = Image.fromarray(imageio.imread(image_path, pilmode='RGB'))
-
-							# 4 - Socket ImageIO
-							image = decodeImg(image_path)
-							raw_image = Image.fromarray(image)
-
-							image = ImageTk.PhotoImage(raw_image)
-						except FileNotFoundError:
-							image = ""
-					self.media.configure(image=image)
-					self.media.image = image
+					if isinstance(obj, Photo):
+						if obj.image:
+							image = ImageTk.PhotoImage(obj.image)
+							self.media.configure(image=image)
+							self.media.image = image
+						else:
+							pass
+					elif isinstance(obj, str):
+						print(f"New message: {obj}")
+					else:
+						print(f"Uknown instance: '{type(obj)}'")
 				except queue.Empty:
 					# just on general principles, although we don't expect this
 					# branch to be taken in this case, ignore this exception!
@@ -93,10 +82,10 @@ class UI:
 				# branch to be taken in this case, ignore this exception!
 				pass
 
-	def replace(self, image_path):
-		"""Replace the image in the user interface."""
+	def replace(self, obj):
+		"""Replace the object in the user interface."""
 		if self.isRunning():
-			self.q.put(image_path)
+			self.q.put(obj)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,8 @@
 
 from memo.artistic.photo import Photo
 import argparse
+import os
+import time
 
 
 def arguments():
@@ -13,17 +15,22 @@ def arguments():
 	                    help="Selects an image.",
 	                    required=True)
 	parser.add_argument("-f", "--filter",
-	                    help="Selects the server ip address or hostname. Default is '127.0.0.1'",
+	                    help="Selects the filter to apply.",
 	                    default="normal")
+	parser.add_argument("-o", "--output_dir",
+	                    help="Selects the output directory.",
+	                    default="/tmp/memo/")
 
 	args = parser.parse_args()
 	filterType = str(args.filter)
 	image = str(args.image)
-	return image, filterType
+	output_dir = str(args.output_dir)
+	return image, filterType, output_dir
+
 
 def main():
 	"""Application starts here."""
-	image_path, filterType = arguments()
+	image_path, filterType, out_path = arguments()
 	print(f"Filter: {filterType}")
 
 	photo = Photo(image_path)
@@ -43,6 +50,15 @@ def main():
 	else:
 		photo.as_test()
 
+	# Test serialisation
+	serialized_image = photo.serialise()
+	photo = Photo.deserialise(serialized_image)
+
+	if not os.path.exists(out_path):
+		os.mkdir(out_path)
+	filename = filterType + "_" + time.strftime("%Y%m%d-%H%M%S") + ".jpeg"
+
+	photo.save(os.path.join(out_path + filename))
 	photo.show()
 
 

@@ -1,6 +1,8 @@
 """Photo manipulation."""
 
+import codecs
 import copy
+import pickle
 import imageio
 import random
 import numpy as np
@@ -45,6 +47,18 @@ class Photo:
 	def copy(self):
 		"""Copy the photo."""
 		return copy.deepcopy(self)
+
+	def save(self, path):
+		"""Save the photo."""
+		self.image.convert('RGB').save(path)
+
+	def serialise(self):
+		base64_str = codecs.encode(pickle.dumps(self), "base64").decode()
+		return base64_str
+
+	def deserialise(base64_str):
+		photoObj = pickle.loads(codecs.decode(base64_str.encode(), "base64"))
+		return photoObj
 
 	def merge(self, photo):
 		"""Merge the photo."""

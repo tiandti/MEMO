@@ -36,6 +36,9 @@ class FSM(ABC):
 				raise Exception("at least one state must be an end_state")
 			self.inRunAtLeastOnce = True
 
+		print("\033[0;31m-------------------------------------------------------")
+		print(f"\033[0;31m[FSM]: {self.handler.__name__}\033[0m")
+		print("")
 		newState = self.handler(arg)
 		if newState.upper() in self.endStates:
 			print("reached ", newState)

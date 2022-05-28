@@ -88,7 +88,7 @@ def take_photo(arg):
 
 	gui_text(con, "Please take a photo")
 	time.sleep(5)
-	image_path = getRandomFile("media/faces")
+	image_path = getRandomFile("media/")
 	print(f"Taking photo of person - {image_path}... ")
 
 	image = Photo(image_path)

@@ -2,22 +2,30 @@
 
 """Filter tool."""
 
-import RPi.GPIO as GPIO
+from .utils import isRaspberry
+
+
+if isRaspberry():
+	import RPi.GPIO as GPIO
+
 
 # pip install RPi.GPIO
 def isHumanDetected():
-	pin = 14
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setup(pin, GPIO.IN)
-	if GPIO.input(pin) != 0:
-		return False
+	if isRaspberry():
+		pin = 14
+		GPIO.setmode(GPIO.BCM)
+		GPIO.setup(pin, GPIO.IN)
+		if GPIO.input(pin) != 0:
+			return False
+		else:
+			return True
 	else:
+		input("Virtual sensor: Press a button")
 		return True
 
 def main():
 	"""Application starts here."""
 	isDetected = isHumanDetected()
-	
 
 	print(f"Human: {isDetected}")
 

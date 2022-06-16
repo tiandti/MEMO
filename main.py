@@ -24,16 +24,6 @@ import pickle
 
 image = None
 
-
-def getRandomFile(directory):
-	files = []
-	for dirpath, _, filenames in os.walk(directory):
-		for f in filenames:
-			files.append(os.path.join(dirpath, f))
-	image_path = random.choice(files)
-	return image_path
-
-
 def getRandomFilter(image):
 	filters = ["hockney"]
 	filterType = random.choice(filters)
@@ -93,10 +83,6 @@ def take_photo(arg):
 
 	gui_text(con, "Please take a photo")
 	time.sleep(5)
-	#image_path = getRandomFile("media/")
-	#print(f"Taking photo of person - {image_path}... ")
-
-	#image = Photo(image_path)
 	image = takeCameraPhoto()
 	gui_text(con, "Photo is taken")
 

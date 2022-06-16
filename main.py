@@ -22,7 +22,7 @@ image = None
 
 
 def getRandomFilter(image):
-	filters = ["hockney"]
+	filters = ["hockney", "ghost"]
 	filterType = random.choice(filters)
 	print(f"Filter: {filterType}")
 
@@ -32,6 +32,12 @@ def getRandomFilter(image):
 		background_photo.as_test()
 		background_photo.merge(image)
 		image = background_photo
+	elif filterType == "ghost":
+		# rightPhoto = takeCameraPhoto()
+		# leftPhoto = takeCameraPhoto()
+		rightPhoto = None
+		leftPhoto = None
+		image.as_ghost(left=leftPhoto, right=rightPhoto)
 	elif filterType == "gray":
 		image.as_gray()
 	elif filterType == "swirl":

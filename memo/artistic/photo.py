@@ -257,6 +257,33 @@ class Photo:
 		self.image = Image.fromarray((rag_image * 255).astype(np.uint8))
 		self.image = self.image.convert("RGBA")
 
+	def as_ghost(self, left=None, right=None, dx=150, opacity=160, blendRight=0.5, blendLeft=0.5):
+		"""TODO."""
+
+		def paste(image, c, x, y):
+			image.paste(c, (x, y))
+			return image
+
+		# Right
+		if right is None:
+			right = copy.deepcopy(self.image)
+		else:
+			right = right.image
+		right.putalpha(opacity)
+		paste(right, right, dx, 0)
+
+		# Left
+		if left is None:
+			left = copy.deepcopy(self.image)
+		else:
+			left = left.image
+		left.putalpha(opacity)
+		paste(left, left, -dx, 0)
+
+		# Center
+		blended_image = Image.blend(self.image, right, blendRight)
+		self.image = Image.blend(blended_image, left, blendLeft)
+
 	# ---------------------------------------------------------------------
 	# Tests
 	def filterFunc(self):

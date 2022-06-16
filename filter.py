@@ -42,6 +42,7 @@ def main():
 	else:
 		photo = Photo(image_path)
 	print(type(photo))
+	print(photo)
 	# photo.save("original.jpg")
 
 	if filterType == "hockney":
@@ -50,6 +51,10 @@ def main():
 		background_photo.as_test()
 		background_photo.merge(photo)
 		photo = background_photo
+	elif filterType == "ghost":
+		rightPhoto = takeCameraPhoto()
+		leftPhoto = takeCameraPhoto()
+		photo.as_ghost(left=leftPhoto, right=rightPhoto)
 	elif filterType == "gray":
 		photo.as_gray()
 	elif filterType == "swirl":

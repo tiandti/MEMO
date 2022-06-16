@@ -23,12 +23,17 @@ from PIL import ImageOps
 class Photo:
 	"""Class that represents a photograph."""
 
-	def __init__(self, imagepath):
+	def __init__(self, image):
 		"""Initialise a photograph."""
-		self.image = imageio.imread(imagepath, pilmode='RGBA')
+		if isinstance(image, str):
+			# Read from image path
+			self.image = imageio.imread(image, pilmode='RGBA')
 
-		# Convert to PIL image
-		self.image = Image.fromarray(self.image)
+			# Convert to PIL image
+			self.image = Image.fromarray(self.image)
+		else:
+			# Read from PIL image
+			self.image = image.convert("RGBA")
 
 	def __str__(self):
 		"""Print photo attributes."""

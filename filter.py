@@ -3,6 +3,7 @@
 """Filter tool."""
 
 from memo.artistic.photo import Photo
+from memo.camera import takeCameraPhoto
 import argparse
 import os
 import time
@@ -13,7 +14,7 @@ def arguments():
 	parser = argparse.ArgumentParser(description='Memo kiosk client/server')
 	parser.add_argument("-i", "--image",
 	                    help="Selects an image.",
-	                    required=True)
+	                    required=False)
 	parser.add_argument("-f", "--filter",
 	                    help="Selects the filter to apply.",
 	                    default="normal")
@@ -32,8 +33,16 @@ def main():
 	"""Application starts here."""
 	image_path, filterType, out_path = arguments()
 	print(f"Filter: {filterType}")
+	
+	print(f"Image: {image_path}")
 
-	photo = Photo(image_path)
+	photo = None
+	if image_path == "None":
+		photo = takeCameraPhoto()
+	else:
+		photo = Photo(image_path)
+	print(type(photo))
+	#photo.save("original.jpg")
 
 	if filterType == "hockney":
 		background_photo = photo.copy()

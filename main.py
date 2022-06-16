@@ -3,10 +3,12 @@
 """Memo application."""
 
 from memo.artistic.photo import Photo
+from memo.camera import takeCameraPhoto
+from memo.human import isHumanDetected
 from memo.text import Text
 from memo.imgEncoder import encodeImg
 from memo.connectors import Server
-from memo.fst.fst import fst
+#from memo.fst.fst import fst
 from memo.ui import UI
 from memo.app import App
 from memo.timer import Timer
@@ -33,7 +35,7 @@ def getRandomFile(directory):
 
 
 def getRandomFilter(image):
-	filters = ["hockney", "gray", "swirl", "rag"]
+	filters = ["hockney"]
 	filterType = random.choice(filters)
 	print(f"Filter: {filterType}")
 
@@ -78,7 +80,10 @@ def idle(arg):
 	con = arg["connection"]
 	time.sleep(2)
 	gui_text(con, "")
-	return ("take_photo")
+	if isHumanDetected():
+		return ("take_photo")
+	else:
+		return ("idle")
 
 
 def take_photo(arg):
@@ -88,10 +93,12 @@ def take_photo(arg):
 
 	gui_text(con, "Please take a photo")
 	time.sleep(5)
-	image_path = getRandomFile("media/")
-	print(f"Taking photo of person - {image_path}... ")
+	#image_path = getRandomFile("media/")
+	#print(f"Taking photo of person - {image_path}... ")
 
-	image = Photo(image_path)
+	#image = Photo(image_path)
+	image = takeCameraPhoto()
+	gui_text(con, "Photo is taken")
 
 	gui_image(con, image)
 	gui_text(con, "")
@@ -117,27 +124,6 @@ def filter_photo(arg):
 	gui_image(con, image)
 
 	time.sleep(5)
-
-	return ("acknoledge")
-
-
-def filter_photo_old(arg):
-	"""Filter photo state."""
-	con = arg["connection"]
-
-	image_in = imageio.imread(image, pilmode='RGB')
-	fstModel = getRandomFile("models/")
-	print(f"Calculating filter '{fstModel}'... Please wait...")
-	image_out = fst(image_in, fstModel)
-	print("Filter ready")
-
-	data = encodeImg(image_out)
-	con.send(data.encode())
-	time.sleep(0.01)
-	con.send("OK".encode())
-	time.sleep(0.01)
-
-	time.sleep(10)
 
 	return ("acknoledge")
 

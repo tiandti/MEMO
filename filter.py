@@ -33,7 +33,7 @@ def main():
 	"""Application starts here."""
 	image_path, filterType, out_path = arguments()
 	print(f"Filter: {filterType}")
-	
+
 	print(f"Image: {image_path}")
 
 	photo = None
@@ -42,7 +42,7 @@ def main():
 	else:
 		photo = Photo(image_path)
 	print(type(photo))
-	#photo.save("original.jpg")
+	# photo.save("original.jpg")
 
 	if filterType == "hockney":
 		background_photo = photo.copy()

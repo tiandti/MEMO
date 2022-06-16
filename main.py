@@ -2,20 +2,16 @@
 
 """Memo application."""
 
-from memo.artistic.photo import Photo
 from memo.camera import takeCameraPhoto
 from memo.human import isHumanDetected
 from memo.text import Text
-from memo.imgEncoder import encodeImg
 from memo.connectors import Server
-#from memo.fst.fst import fst
 from memo.ui import UI
 from memo.app import App
 from memo.timer import Timer
 import argparse
 import time
 import sys
-import imageio
 import random
 import os
 import codecs
@@ -23,6 +19,7 @@ import pickle
 
 
 image = None
+
 
 def getRandomFilter(image):
 	filters = ["hockney"]
@@ -101,11 +98,11 @@ def filter_photo(arg):
 
 	image = getRandomFilter(image)
 
-	#background_photo = image.copy()
-	#image.as_hockney(100, False)
-	#background_photo.as_test()
-	#background_photo.merge(image)
-	#image = background_photo
+	# background_photo = image.copy()
+	# image.as_hockney(100, False)
+	# background_photo.as_test()
+	# background_photo.merge(image)
+	# image = background_photo
 
 	gui_image(con, image)
 

@@ -20,8 +20,11 @@ def isHumanDetected():
 		else:
 			return True
 	else:
-		input("Virtual sensor: Press a button")
-		return True
+		answer = input("Virtual sensor: Are you there? y/n")
+		if answer == "y":
+			return True
+		else:
+			return False
 
 def main():
 	"""Application starts here."""

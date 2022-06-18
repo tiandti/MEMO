@@ -21,33 +21,29 @@ import pickle
 image = None
 
 
-def getRandomFilter(image):
-	filters = ["hockney", "ghost"]
-	filterType = random.choice(filters)
-	print(f"Filter: {filterType}")
-
-	if filterType == "hockney":
-		background_photo = image.copy()
-		image.as_hockney(100, False)
-		background_photo.as_test()
-		background_photo.merge(image)
-		image = background_photo
-	elif filterType == "ghost":
-		# rightPhoto = takeCameraPhoto()
-		# leftPhoto = takeCameraPhoto()
-		rightPhoto = None
-		leftPhoto = None
-		image.as_ghost(left=leftPhoto, right=rightPhoto)
-	elif filterType == "gray":
-		image.as_gray()
-	elif filterType == "swirl":
-		image.swirl(5, 100, 1)
-	elif filterType == "rag":
-		image.as_rag()
-	else:
-		image.as_test()
-
-	return image
+#def getRandomFilter(image):
+#	filters = ["hockney", "ghost", "crisscross"]
+#	filterType = random.choice(filters)
+#	print(f"Filter: {filterType}")
+#
+#	if filterType == "hockney":
+#		background_photo = image.copy()
+#		image.as_hockney(100, False)
+#		background_photo.as_test()  # TODO: Change the internal name
+#		background_photo.merge(image)
+#		image = background_photo
+#	elif filterType == "ghost":
+#		# rightPhoto = takeCameraPhoto()
+#		# leftPhoto = takeCameraPhoto()
+#		rightPhoto = None
+#		leftPhoto = None
+#		image.as_ghost(left=leftPhoto, right=rightPhoto)
+#	elif filterType == "crisscross":
+#		image.as_test()  # TODO: Change the internal name
+#	else:
+#		image.as_test()  # TODO: Change the internal name
+#
+#	return image
 
 
 def gui_text(con, txt):
@@ -63,6 +59,7 @@ def gui_image(con, image):
 def init(arg):
 	"""Init state."""
 	con = arg["connection"]
+	# gui_image(con, None)
 	gui_text(con, "Initializing...")
 	time.sleep(5)
 	return ("idle")
@@ -71,16 +68,56 @@ def init(arg):
 def idle(arg):
 	"""Idle state."""
 	con = arg["connection"]
-	time.sleep(2)
+	time.sleep(2)  # For cpu load
 	gui_text(con, "")
 	if isHumanDetected():
-		return ("take_photo")
+		# jobChoices = ["job_hockney", "job_ghost", "job_cc"]
+		# job = random.choice(jobChoices)
+		job = "job_hockney"
+		return (job)
 	else:
 		return ("idle")
 
 
-def take_photo(arg):
-	"""Take photo state."""
+def job_hockney(arg):
+	"""Do the job state."""
+	con = arg["connection"]
+	global image
+
+	# We wanted to take the photo when the person is close
+	gui_text(con, "Please stand at the line")
+	time.sleep(4)
+	image1 = takeCameraPhoto()
+
+	# We want the person to look at the camere
+	gui_text(con, "<-- Please look here")
+	time.sleep(1.5)
+	image2 = takeCameraPhoto()
+	time.sleep(1)
+	gui_text(con, "")
+
+	image = random.choice([image1, image2])
+
+	# Do the filter
+	background_photo = image.copy()
+	image.as_hockney(100, False)
+	background_photo.as_test()  # TODO: Change the internal name
+	background_photo.merge(image)
+	image = background_photo
+
+	# Save
+	# TODO: Add mechanism to keep only the last 100? photos
+	out_path = "/tmp/memo"
+	if not os.path.exists(out_path):
+		os.mkdir(out_path)
+	filename = time.strftime("%Y%m%d-%H%M%S") + ".jpeg"
+	image.save(os.path.join(out_path + filename))
+
+	return ("presentation")
+
+
+def job_ghost(arg):
+	"""Do the job state."""
 	con = arg["connection"]
 	global image
 
@@ -97,40 +134,51 @@ def take_photo(arg):
 	return ("filter_photo")
 
 
-def filter_photo(arg):
-	"""Filter photo state."""
+def job_cc(arg):
+	"""Do the job state."""
 	con = arg["connection"]
 	global image
 
-	image = getRandomFilter(image)
-
-	# background_photo = image.copy()
-	# image.as_hockney(100, False)
-	# background_photo.as_test()
-	# background_photo.merge(image)
-	# image = background_photo
+	gui_text(con, "Please take a photo")
+	time.sleep(5)
+	image = takeCameraPhoto()
+	gui_text(con, "Photo is taken")
 
 	gui_image(con, image)
+	gui_text(con, "")
 
-	time.sleep(5)
+	time.sleep(2)
 
-	return ("acknoledge")
+	return ("filter_photo")
 
 
-def acknoledge(arg):
-	"""Acknoledge state."""
+def presentation(arg):
+	"""We show the person his/her memory state."""
+	con = arg["connection"]
 	global image
 
-	out_path = "/tmp/memo"
-	if not os.path.exists(out_path):
-		os.mkdir(out_path)
-	filename = time.strftime("%Y%m%d-%H%M%S") + ".jpeg"
-	image.save(os.path.join(out_path + filename))
+	time.sleep(2)
+	gui_image(con, image)
+	time.sleep(7)
+	gui_text(con, "Congratulations!")
+	time.sleep(1)
+	gui_text(con, "You just got a new memory!")
 
-	print("Please press a button to reset...")
-	# input()
-	print("")
-	return ("idle")
+	return ("overtime")
+
+
+def overtime(arg):
+	"""Person wants to stay longer state."""
+	con = arg["connection"]
+	time.sleep(2)  # For cpu load
+	gui_text(con, "")
+
+	if isHumanDetected():
+		return ("overtime")
+	else:
+		time.sleep(1)
+		# gui_image(con, image)  # TODO: Show black
+		return ("idle")
 
 
 def exit(arg):
@@ -207,9 +255,11 @@ def main():
 
 		sm.add_state("init", init)
 		sm.add_state("idle", idle)
-		sm.add_state("take_photo", take_photo)
-		sm.add_state("filter_photo", filter_photo)
-		sm.add_state("acknoledge", acknoledge)
+		sm.add_state("job_hockney", job_hockney)
+		sm.add_state("job_cc", job_cc)
+		sm.add_state("job_ghost", job_ghost)
+		sm.add_state("presentation", presentation)
+		sm.add_state("overtime", overtime)
 		sm.add_state("exit", exit, end_state=True)
 		while True:
 			sm.run()

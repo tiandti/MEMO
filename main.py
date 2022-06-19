@@ -107,11 +107,12 @@ def job_hockney(arg):
 
 	# Save
 	# TODO: Add mechanism to keep only the last 100? photos
-	out_path = "/tmp/memo"
+	out_path = "/tmp/memo/"
 	if not os.path.exists(out_path):
 		os.mkdir(out_path)
 	filename = time.strftime("%Y%m%d-%H%M%S") + ".jpeg"
-	image.save(os.path.join(out_path + filename))
+	filepath = os.path.join(out_path + filename)
+	image.save(filepath)
 
 	return ("presentation")
 

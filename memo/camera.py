@@ -22,7 +22,9 @@ def takeCameraPhoto():
 		camera.capture(stream, format='jpeg')
 		stream.seek(0)
 		pil_image = Image.open(stream)
-		return Photo(pil_image)
+		photo = Photo(pil_image)
+		camera.close()
+		return photo
 	else:
 		image_path = getRandomFile("media/")
 		image = Photo(image_path)

@@ -13,19 +13,28 @@ if isRaspberry():
 	from picamera import PiCamera
 
 
-def takeCameraPhoto():
-	if isRaspberry():
-		stream = BytesIO()
-		camera = PiCamera()
-		camera.resolution = (1680, 1050)
-		camera.rotation = 90
-		camera.capture(stream, format='jpeg')
-		stream.seek(0)
-		pil_image = Image.open(stream)
-		photo = Photo(pil_image)
-		camera.close()
-		return photo
-	else:
-		image_path = getRandomFile("media/")
-		image = Photo(image_path)
-		return image
+class Camera():
+	def __init__(self):
+		if isRaspberry():
+			self.camera = PiCamera()
+			self.camera.resolution = (1680, 1050)
+			self.camera.rotation = 90
+		else:
+			self.camera = None
+
+	def __del__(self):
+		if self.camera is not None:
+			self.camera.close()
+
+	def takePhoto(self):
+		if self.camera is not None:
+			stream = BytesIO()
+			self.camera.capture(stream, format='jpeg')
+			stream.seek(0)
+			pil_image = Image.open(stream)
+			photo = Photo(pil_image)
+			return photo
+		else:
+			image_path = getRandomFile("media/")
+			photo = Photo(image_path)
+			return photo

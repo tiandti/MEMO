@@ -10,4 +10,3 @@ RPi.GPIO==0.7.1
 scikit-image==0.19.3
 SciPy==1.8.1
 tifffile==2022.5.4
-virtualbus==0.6.1.post1

@@ -9,8 +9,8 @@ if isRaspberry():
 	import RPi.GPIO as GPIO
 
 
-# pip install RPi.GPIO
 def isHumanDetected():
+	"""Check if a human is detected via the analog sensor."""
 	if isRaspberry():
 		pin = 14
 		GPIO.setmode(GPIO.BCM)
@@ -20,11 +20,12 @@ def isHumanDetected():
 		else:
 			return True
 	else:
-		answer = input("Virtual sensor: Are you there? y/n")
+		answer = input("Virtual sensor: Are you there? y\n")
 		if answer == "y":
 			return True
 		else:
 			return False
+
 
 def main():
 	"""Application starts here."""

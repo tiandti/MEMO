@@ -1,7 +1,6 @@
 """User interface."""
 
 from memo.artistic.photo import Photo
-from memo.text import Text
 from PIL import ImageTk
 import tkinter as tk
 import threading
@@ -56,25 +55,24 @@ class UI:
 			if self.q.qsize():
 				try:
 					obj = self.q.get_nowait()
-					# Check contents of message and do whatever is needed. As a
-					# simple example, let's print it (in real life, you would
-					# suitably update the GUI's display in a richer fashion).
-					# print(msg)
 
-					if isinstance(obj, Photo):
+					if obj is None:
+						print("UI: Clear image")
+						self.media.configure(image="")
+						self.media.image = ""
+					elif isinstance(obj, Photo):
+						print(f"UI: Change image: {obj}")
 						if obj.image:
 							image = ImageTk.PhotoImage(obj.image)
 							self.media.configure(image=image)
 							self.media.image = image
 						else:
 							pass
-					elif isinstance(obj, Text):
-						print(f"New message: {obj}")
-						self.message.set(obj.txt)
 					elif isinstance(obj, str):
-						print(f"New str: {obj}")
+						print(f"UI: Change label: {obj}")
+						self.message.set(obj)
 					else:
-						print(f"Uknown instance: '{type(obj)}'")
+						print(f"UI: Unknown instance: '{type(obj)}'")
 				except queue.Empty:
 					# just on general principles, although we don't expect this
 					# branch to be taken in this case, ignore this exception!

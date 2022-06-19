@@ -24,6 +24,10 @@ class MemoMachine:
 	def handle(self):
 		"""Handle the finite state machine."""
 		if self.stateFunc is not None:
+			name = self.stateFunc.__name__
+			print("\033[0;31m-------------------------------------------------------")
+			print(f"\033[0;31m[FSM]: {name}\033[0m")
+			print("")
 			self.stateFunc()
 
 	def _initState(self):
@@ -40,9 +44,8 @@ class MemoMachine:
 		self.changeGuiFunc(None)
 		self.changeGuiFunc("")
 		if isHumanDetected():
-			# filterStateChoices = [self._hockneyFilterState, self._ghostFilterState, self._ccFilterState]
-			# filterState = random.choice(filterStateChoices)
-			filterState = self._hockneyFilterState
+			filterStateChoices = [self._hockneyFilterState, self._ghostFilterState, self._ccFilterState]
+			filterState = random.choice(filterStateChoices)
 			self.stateFunc = filterState
 		else:
 			self.stateFunc = self._idleState
@@ -61,41 +64,56 @@ class MemoMachine:
 		time.sleep(1)
 		self.changeGuiFunc("")
 
-		photo = random.choice([photoFar, photoClose])
+		self.photo = random.choice([photoFar, photoClose])
 
 		# Do the filter
-		background_photo = photo.copy()
-		photo.as_hockney(100, False)
-		background_photo.as_test()  # TODO: Change the internal name
-		background_photo.merge(photo)
-		photo = background_photo
-
-		# Save
-		# TODO: Add mechanism to keep only the last 100? photos
-		out_path = "/tmp/memo/"
-		if not os.path.exists(out_path):
-			os.mkdir(out_path)
-		filename = time.strftime("%Y%m%d-%H%M%S") + ".jpeg"
-		filepath = os.path.join(out_path + filename)
-		photo.save(filepath)
-
-		self.photo = photo
+		background_photo = self.photo.copy()
+		self.photo.as_hockney(100, False)
+		background_photo.as_cc()
+		background_photo.merge(self.photo)
+		self.photo = background_photo
 
 		self.stateFunc = self._presentationState
 
 	def _ghostFilterState(self):
 		"""Do the Ghost filter state."""
-# 		# rightPhoto = self.camera.takePhoto()
-# 		# leftPhoto = self.camera.takePhoto()
-# 		rightPhoto = None
-# 		leftPhoto = None
-# 		image.as_ghost(left=leftPhoto, right=rightPhoto)
-		pass
+		# We wanted one photo when the person is away
+		time.sleep(1)
+		rightPhoto = self.camera.takePhoto()
+
+		# We wanted one photo when the person is closer
+		self.changeGuiFunc("Please stand at the line")
+		time.sleep(3)
+		leftPhoto = self.camera.takePhoto()
+		time.sleep(1)
+		self.changeGuiFunc("")
+
+		# We want the person to look at the camere
+		self.changeGuiFunc("<-- Please look here")
+		time.sleep(1.5)
+		self.photo = self.camera.takePhoto()
+		time.sleep(1)
+		self.changeGuiFunc("")
+
+		# Do the filter
+		self.photo.as_ghost(left=leftPhoto, right=rightPhoto)
+
+		self.stateFunc = self._presentationState
 
 	def _ccFilterState(self):
 		"""Do the CrissCross filter state."""
-# 		image.as_test()  # TODO: Change the internal name
-		pass
+		# We wanted one photo when the person is atthe line
+		time.sleep(1)
+		self.changeGuiFunc("Please stand at the line")
+		time.sleep(6)
+		self.photo = self.camera.takePhoto()
+		time.sleep(1)
+		self.changeGuiFunc("")
+
+		# Do the filter
+		self.photo.as_cc()
+
+		self.stateFunc = self._presentationState
 
 	def _presentationState(self):
 		"""We show the person his/her memory state."""
@@ -105,6 +123,15 @@ class MemoMachine:
 		self.changeGuiFunc("Congratulations!")
 		time.sleep(1)
 		self.changeGuiFunc("You just got a new memory!")
+
+		# Save
+		# TODO: Add mechanism to keep only the last 100? photos
+		out_path = "/tmp/memo/"
+		if not os.path.exists(out_path):
+			os.mkdir(out_path)
+		filename = time.strftime("%Y%m%d-%H%M%S") + ".jpeg"
+		filepath = os.path.join(out_path + filename)
+		self.photo.save(filepath)
 
 		self.stateFunc = self._overtimeState
 

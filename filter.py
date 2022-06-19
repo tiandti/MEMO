@@ -48,7 +48,7 @@ def main():
 	if filterType == "hockney":
 		background_photo = photo.copy()
 		photo.as_hockney(100, False)
-		background_photo.as_test()
+		background_photo.as_cc()
 		background_photo.merge(photo)
 		photo = background_photo
 	elif filterType == "ghost":
@@ -62,7 +62,7 @@ def main():
 	elif filterType == "rag":
 		photo.as_rag()
 	else:
-		photo.as_test()
+		photo.as_cc()
 
 	# Test serialisation
 	serialized_image = photo.serialise()

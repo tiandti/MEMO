@@ -7,7 +7,6 @@ import imageio
 import random
 import numpy as np
 from PIL import Image
-from skimage import exposure
 from skimage.transform import swirl
 from skimage import segmentation
 from skimage import color
@@ -186,8 +185,8 @@ class Photo:
 
 		self.image = pil_image_out
 
-	def as_test(self, background=True):
-		"""Test filter from Tania."""
+	def as_cc(self, background=True):
+		"""Criss cross filter."""
 		def crop(image, x, y, sizex, sizey):
 			box = (x, y, x + sizex, y + sizey)
 			cropped_image = image.crop(box)
@@ -258,7 +257,7 @@ class Photo:
 		self.image = self.image.convert("RGBA")
 
 	def as_ghost(self, left=None, right=None, dx=150, opacity=160, blendRight=0.5, blendLeft=0.5):
-		"""TODO."""
+		"""Ghost filter."""
 
 		def paste(image, c, x, y):
 			image.paste(c, (x, y))
@@ -286,18 +285,8 @@ class Photo:
 
 	# ---------------------------------------------------------------------
 	# Tests
-	def filterFunc(self):
-		"""TODO."""
-		pil_image = Image.fromarray(self.image)
-		self.image = np.array(pil_image)
-		raise NotImplementedError
-
-	def test(self):
-		"""TODO."""
-		pil_image = Image.fromarray(self.image)
-		self.image = np.array(pil_image)
-		raise NotImplementedError
-
-	# ---------------------------------------------------------------------
-	# TODO
-	# https://pythontic.com/image-processing/pillow/sharpen-filter
+	# def filterFunc(self):
+	# 	"""TODO."""
+	# 	pil_image = Image.fromarray(self.image)
+	# 	self.image = np.array(pil_image)
+	# 	raise NotImplementedError

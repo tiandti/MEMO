@@ -29,7 +29,7 @@ class UI:
 
 	def close(self):
 		"""Close the user interface."""
-		print("[UI]: Closing")
+		print("UI: Closing")
 		self.quitEvent.set()
 
 	def _thread(self):
@@ -39,7 +39,7 @@ class UI:
 		self.root.bind("<Escape>", lambda x: self.close())
 		height = self.root.winfo_screenheight()
 		width = self.root.winfo_screenwidth()
-		print(f"[UI]: Screen: {width} x {height} (in pixels)\n")
+		print(f"UI: Screen: {width} x {height} (in pixels)\n")
 
 		# Create an image holder with a text
 		self.message = tk.StringVar()

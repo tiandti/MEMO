@@ -78,7 +78,6 @@ class MemoMachine:
 	def _ghostFilterState(self):
 		"""Do the Ghost filter state."""
 		# We wanted one photo when the person is away
-		time.sleep(1)
 		rightPhoto = self.camera.takePhoto()
 
 		# We wanted one photo when the person is closer
@@ -95,22 +94,33 @@ class MemoMachine:
 		time.sleep(1)
 		self.changeGuiFunc("")
 
-		# Do the filter
-		self.photo.as_ghost(left=leftPhoto, right=rightPhoto)
+		# Do the filter. Randomly select 2 photos
+		[imageA, imageB] = random.sample([leftPhoto, rightPhoto, self.photo], 2)
+		self.photo.as_ghost(left=imageA, right=imageB)
 
 		self.stateFunc = self._presentationState
 
 	def _ccFilterState(self):
 		"""Do the CrissCross filter state."""
-		# We wanted one photo when the person is atthe line
-		time.sleep(1)
+                # We wanted one photo when the person is away
+		rightPhoto = self.camera.takePhoto()
+
+		# We wanted one photo when the person is closer
 		self.changeGuiFunc("Please stand at the line")
-		time.sleep(6)
+		time.sleep(3)
+		leftPhoto = self.camera.takePhoto()
+		time.sleep(1)
+		self.changeGuiFunc("")
+
+		# We want the person to look at the camere
+		self.changeGuiFunc("<-- Please look here")
+		time.sleep(1.5)
 		self.photo = self.camera.takePhoto()
 		time.sleep(1)
 		self.changeGuiFunc("")
 
-		# Do the filter
+		# Do the filter. Randomly select 2 photos
+		self.photo = random.choice([self.photo, leftPhoto, rightPhoto])
 		self.photo.as_cc()
 
 		self.stateFunc = self._presentationState

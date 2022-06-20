@@ -8,6 +8,7 @@ import random
 import numpy as np
 from PIL import Image
 from skimage.transform import swirl
+#from skimage import exposure
 from skimage import segmentation
 from skimage import color
 from skimage.future import graph
@@ -260,7 +261,9 @@ class Photo:
 		"""Ghost filter."""
 
 		def paste(image, c, x, y):
-			image.paste(c, (x, y))
+			tempImage = copy.deepcopy(image)
+			tempImage.paste(c, (x, y))
+			image =	tempImage
 			return image
 
 		# Right
@@ -269,7 +272,7 @@ class Photo:
 		else:
 			right = right.image
 		right.putalpha(opacity)
-		paste(right, right, dx, 0)
+		right = paste(right, right, dx, 0)
 
 		# Left
 		if left is None:
@@ -277,11 +280,10 @@ class Photo:
 		else:
 			left = left.image
 		left.putalpha(opacity)
-		paste(left, left, -dx, 0)
+		left = paste(left, left, -dx, 0)
 
 		# Center
-		blended_image = Image.blend(self.image, right, blendRight)
-		self.image = Image.blend(blended_image, left, blendLeft)
+		self.image = Image.blend(left, right, blendLeft)
 
 	# ---------------------------------------------------------------------
 	# Tests

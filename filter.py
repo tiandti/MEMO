@@ -3,7 +3,7 @@
 """Filter tool."""
 
 from memo.artistic.photo import Photo
-from memo.camera import takeCameraPhoto
+from memo.camera import Camera
 import argparse
 import os
 import time
@@ -32,13 +32,14 @@ def arguments():
 def main():
 	"""Application starts here."""
 	image_path, filterType, out_path = arguments()
+	camera = Camera()
 	print(f"Filter: {filterType}")
 
 	print(f"Image: {image_path}")
 
 	photo = None
 	if image_path == "None":
-		photo = takeCameraPhoto()
+		photo = camera.takePhoto()
 	else:
 		photo = Photo(image_path)
 	print(type(photo))
@@ -52,8 +53,13 @@ def main():
 		background_photo.merge(photo)
 		photo = background_photo
 	elif filterType == "ghost":
-		rightPhoto = takeCameraPhoto()
-		leftPhoto = takeCameraPhoto()
+		print("Will take a far photo")
+		time.sleep(1.5)
+		rightPhoto = camera.takePhoto()
+		print("Will take the near photo")
+		time.sleep(1.5)
+		leftPhoto = camera.takePhoto()
+		print("Done")
 		photo.as_ghost(left=leftPhoto, right=rightPhoto)
 	elif filterType == "gray":
 		photo.as_gray()

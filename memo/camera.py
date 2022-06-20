@@ -17,7 +17,7 @@ class Camera():
 	def __init__(self):
 		if isRaspberry():
 			self.camera = PiCamera()
-			self.camera.resolution = (1680, 1050)
+			self.camera.resolution = (1050, 1680)
 			self.camera.rotation = 90
 		else:
 			self.camera = None

@@ -2,19 +2,15 @@
 
 import codecs
 import copy
-import pickle
 import imageio
 import random
 import numpy as np
 from PIL import Image
 from skimage.transform import swirl
-#from skimage import exposure
+from skimage import exposure
 from skimage import segmentation
 from skimage import color
 from skimage.future import graph
-
-from .utils import weight_mean_color
-from .utils import merge_mean_color
 
 
 from PIL import ImageOps
@@ -56,14 +52,6 @@ class Photo:
 	def save(self, path):
 		"""Save the photo."""
 		self.image.convert('RGB').save(path)
-
-	def serialise(self):
-		base64_str = codecs.encode(pickle.dumps(self), "base64").decode()
-		return base64_str
-
-	def deserialise(base64_str):
-		photoObj = pickle.loads(codecs.decode(base64_str.encode(), "base64"))
-		return photoObj
 
 	def merge(self, photo):
 		"""Merge the photo."""
@@ -151,7 +139,6 @@ class Photo:
 			image.paste(c, (x, y))
 			return image
 
-		# pil_image = Image.fromarray(self.image)
 		pil_image = self.image
 		pil_image_out = None
 		height = pil_image.size[1]
@@ -163,7 +150,6 @@ class Photo:
 
 		def getRandomLine(pil_image):
 			width = pil_image.size[0]
-			height = pil_image.size[1]
 			x = 0  # random.randrange(0, width, 15)
 			y = 0
 			sizex = width
@@ -197,7 +183,6 @@ class Photo:
 			image.paste(c, (x, y))
 			return image
 
-		# pil_image = Image.fromarray(self.image)
 		pil_image = self.image
 		pil_image_out = None
 		height = pil_image.size[1]
@@ -209,8 +194,7 @@ class Photo:
 
 		def getRandomLine(pil_image):
 			width = pil_image.size[0]
-			height = pil_image.size[1]
-			x = 0  # random.randrange(0, width, 15)
+			x = 0
 			y = 0
 			sizex = width
 			sizey = random.randrange(10, 100, 10)
@@ -232,38 +216,13 @@ class Photo:
 
 		self.image = pil_image_out
 
-	def as_rag(self):
-		"""
-		Construct a Region Adjacency Graph (RAG) and progressively maerge regions that are similar in color.
-
-		Merging two adjacent regions produces a new region with all the pixels from the merged regions.
-		Regions are merged until no highly similar region pairs remain.
-		"""
-		# https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_merge.html#sphx-glr-auto-examples-segmentation-plot-rag-merge-py
-		self.image = self.image.convert("RGB")
-		image = np.array(self.image)
-
-		labels = segmentation.slic(image, compactness=30, n_segments=400, start_label=1)
-		g = graph.rag_mean_color(image, labels)
-
-		labels2 = graph.merge_hierarchical(
-			labels, g, thresh=35, rag_copy=False,
-			in_place_merge=True,
-			merge_func=merge_mean_color,
-			weight_func=weight_mean_color)
-
-		out = color.label2rgb(labels2, image, kind='avg', bg_label=0)
-		rag_image = segmentation.mark_boundaries(out, labels2, (0, 0, 0))
-		self.image = Image.fromarray((rag_image * 255).astype(np.uint8))
-		self.image = self.image.convert("RGBA")
-
 	def as_ghost(self, left=None, right=None, dx=150, opacity=160, blendRight=0.5, blendLeft=0.5):
 		"""Ghost filter."""
 
 		def paste(image, c, x, y):
 			tempImage = copy.deepcopy(image)
 			tempImage.paste(c, (x, y))
-			image =	tempImage
+			image = tempImage
 			return image
 
 		# Right
@@ -284,11 +243,3 @@ class Photo:
 
 		# Center
 		self.image = Image.blend(left, right, blendLeft)
-
-	# ---------------------------------------------------------------------
-	# Tests
-	# def filterFunc(self):
-	# 	"""TODO."""
-	# 	pil_image = Image.fromarray(self.image)
-	# 	self.image = np.array(pil_image)
-	# 	raise NotImplementedError

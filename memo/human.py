@@ -20,11 +20,14 @@ def isHumanDetected():
 		else:
 			return True
 	else:
-		answer = input("Virtual sensor: Are you there? y\n")
+		answer = input("Virtual sensor: Are you there? ")
+		rv = True
 		if answer == "y":
-			return True
+			rv = True
 		else:
-			return False
+			rv = False
+		print("")
+		return rv
 
 
 def main():

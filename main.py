@@ -2,33 +2,91 @@
 
 """Memo application."""
 
+from tkinter import Tk
+from tkinter import Label
+from tkinter import StringVar
+from tkinter import BOTH
+from tkinter import LEFT
+from PIL import ImageTk
+from memo.artistic.photo import Photo
 from memo.camera import Camera
 from memo.human import isHumanDetected
-from memo.ui import UI
 import argparse
 import time
 import random
 import os
 
 
-class MemoMachine:
-	"""The memo FSM."""
+class UI():
+	"""The main UI."""
 
-	def __init__(self, changeGuiFuncCB):
+	def __init__(self, fullscreen=False):
 		"""Create the object."""
 		self.stateFunc = self._initState
-		self.changeGuiFunc = changeGuiFuncCB
 		self.photo = None
 		self.camera = Camera()
 
-	def handle(self):
-		"""Handle the finite state machine."""
-		if self.stateFunc is not None:
-			name = self.stateFunc.__name__
-			print("\033[0;31m-------------------------------------------------------")
-			print(f"\033[0;31m[FSM]: {name}\033[0m")
-			print("")
-			self.stateFunc()
+		"""Create the UI."""
+		self.root = Tk()
+		self.root.title('Memo')
+		self.root.geometry('400x300')
+		self.root.config(bg='#5f734c')
+		self.root.attributes('-fullscreen', fullscreen)
+		self.root.bind("<Escape>", lambda x: self._close())
+		height = self.root.winfo_screenheight()
+		width = self.root.winfo_screenwidth()
+		print(f"UI: Screen: {width} x {height} (in pixels)")
+
+		# Create an image holder with a text
+		self.message = StringVar()
+		self.media = Label(image="", fg='white', font=("Arial", 48, "bold"), textvariable=self.message, compound='center', background="black")
+		self.media.pack(fill=BOTH, side=LEFT, expand=True)
+		self.message.set("")
+
+		self.isRunning = True
+		self.root.update()
+
+	def run(self):
+		"""Run."""
+		while self.isRunning:
+			if self.stateFunc is not None:
+				name = self.stateFunc.__name__
+				print("\033[0;31m-------------------------------------------------------")
+				print(f"\033[0;31m[FSM]: {name}\033[0m")
+				print("")
+				self.stateFunc()
+
+			self.root.update()
+
+		# self.root.mainloop()
+
+	def _close(self):
+		"""Close the UI."""
+		self.changeGuiFunc("Closing...")
+		print("UI: closing")
+		self.isRunning = False
+		# self.root.destroy()
+
+	def changeGuiFunc(self, obj):
+		"""Change an element in the UI."""
+		if obj is None:
+			print("UI: Clear image")
+			self.media.configure(image="")
+			self.media.image = ""
+		elif isinstance(obj, Photo):
+			print(f"UI: Change image: {obj}")
+			if obj.image:
+				image = ImageTk.PhotoImage(obj.image)
+				self.media.configure(image=image)
+				self.media.image = image
+			else:
+				pass
+		elif isinstance(obj, str):
+			print(f"UI: Change label: {obj}")
+			self.message.set(obj)
+		else:
+			print(f"UI: Unknown instance: '{type(obj)}'")
+		self.root.update()
 
 	def _initState(self):
 		"""Init state."""
@@ -39,7 +97,7 @@ class MemoMachine:
 
 	def _idleState(self):
 		"""Idle state."""
-		time.sleep(2)  # For cpu load
+		time.sleep(0.5)  # For cpu load
 		self.photo = None
 		self.changeGuiFunc(None)
 		self.changeGuiFunc("")
@@ -160,7 +218,7 @@ class MemoMachine:
 
 def arguments():
 	"""Command line arguments."""
-	parser = argparse.ArgumentParser(description='Memo kiosk client/server')
+	parser = argparse.ArgumentParser(description='Memo')
 	parser.add_argument("-f", "--fullscreen",
 	                    help="Run in fullscreen mode. Default is no.",
 	                    action='store_true')
@@ -170,18 +228,7 @@ def arguments():
 	return isFullscreen
 
 
-def main():
-	"""Application starts here."""
-	isFullscreen = arguments()
-	ui = UI(isFullscreen)
-	memo = MemoMachine(ui.replace)
-	while ui.isRunning():
-		memo.handle()
-
-
 if __name__ == "__main__":
-	while True:
-		try:
-			main()
-		except Exception:
-			print('\nRestarting.')
+	isFullscreen = arguments()
+	app = UI(isFullscreen)
+	app.run()

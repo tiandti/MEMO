@@ -67,6 +67,10 @@ class UI():
 		self.isRunning = False
 		# self.root.destroy()
 
+	def _sleep(self, s):
+		print(f"UI: Sleep: {s} sec")
+		self.root.after(int(1000 * s), None)
+
 	def changeGuiFunc(self, obj):
 		"""Change an element in the UI."""
 		if obj is None:
@@ -92,12 +96,12 @@ class UI():
 		"""Init state."""
 		self.changeGuiFunc(None)
 		self.changeGuiFunc("Initializing...")
-		time.sleep(5)
+		self._sleep(5)
 		self.stateFunc = self._idleState
 
 	def _idleState(self):
 		"""Idle state."""
-		time.sleep(0.5)  # For cpu load
+		self._sleep(0.5)  # For cpu load
 		self.photo = None
 		self.changeGuiFunc(None)
 		self.changeGuiFunc("")
@@ -112,14 +116,14 @@ class UI():
 		"""Do the Hockney filter state."""
 		# We wanted to take the photo when the person is close
 		self.changeGuiFunc("Please stand at the line")
-		time.sleep(4)
+		self._sleep(4)
 		photoFar = self.camera.takePhoto()
 
 		# We want the person to look at the camere
 		self.changeGuiFunc("<-- Please look here")
-		time.sleep(1.5)
+		self._sleep(1.5)
 		photoClose = self.camera.takePhoto()
-		time.sleep(1)
+		self._sleep(1)
 		self.changeGuiFunc("")
 
 		self.photo = random.choice([photoFar, photoClose])
@@ -140,16 +144,16 @@ class UI():
 
 		# We wanted one photo when the person is closer
 		self.changeGuiFunc("Please stand at the line")
-		time.sleep(3)
+		self._sleep(3)
 		leftPhoto = self.camera.takePhoto()
-		time.sleep(1)
+		self._sleep(1)
 		self.changeGuiFunc("")
 
 		# We want the person to look at the camere
 		self.changeGuiFunc("<-- Please look here")
-		time.sleep(1.5)
+		self._sleep(1.5)
 		self.photo = self.camera.takePhoto()
-		time.sleep(1)
+		self._sleep(1)
 		self.changeGuiFunc("")
 
 		# Do the filter. Randomly select 2 photos
@@ -165,16 +169,16 @@ class UI():
 
 		# We wanted one photo when the person is closer
 		self.changeGuiFunc("Please stand at the line")
-		time.sleep(3)
+		self._sleep(3)
 		leftPhoto = self.camera.takePhoto()
-		time.sleep(1)
+		self._sleep(1)
 		self.changeGuiFunc("")
 
 		# We want the person to look at the camere
 		self.changeGuiFunc("<-- Please look here")
-		time.sleep(1.5)
+		self._sleep(1.5)
 		self.photo = self.camera.takePhoto()
-		time.sleep(1)
+		self._sleep(1)
 		self.changeGuiFunc("")
 
 		# Do the filter. Randomly select 2 photos
@@ -185,11 +189,11 @@ class UI():
 
 	def _presentationState(self):
 		"""We show the person his/her memory state."""
-		time.sleep(2)
+		self._sleep(2)
 		self.changeGuiFunc(self.photo)
-		time.sleep(7)
+		self._sleep(7)
 		self.changeGuiFunc("Congratulations!")
-		time.sleep(1)
+		self._sleep(1)
 		self.changeGuiFunc("You just got a new memory!")
 
 		# Save
@@ -205,13 +209,13 @@ class UI():
 
 	def _overtimeState(self):
 		"""Person wants to stay longer state."""
-		time.sleep(2)  # For cpu load
+		self._sleep(0.5)  # For cpu load
 		self.changeGuiFunc("")
 
 		if isHumanDetected():
 			self.stateFunc = self._overtimeState
 		else:
-			time.sleep(1)
+			self._sleep(1)
 			self.changeGuiFunc(None)
 			self.stateFunc = self._idleState
 

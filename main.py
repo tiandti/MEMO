@@ -43,29 +43,32 @@ class UI():
 		self.media.pack(fill=BOTH, side=LEFT, expand=True)
 		self.message.set("")
 
-		self.isRunning = True
 		self.root.update()
+
+	def _handler(self):
+		if self.stateFunc is not None:
+			name = self.stateFunc.__name__
+			print("\033[0;31m-------------------------------------------------------")
+			print(f"\033[0;31m[FSM]: {name}\033[0m")
+			print("")
+			self.stateFunc()
+
+		self.root.after(0, self._handler)
+
 
 	def run(self):
 		"""Run."""
-		while self.isRunning:
-			if self.stateFunc is not None:
-				name = self.stateFunc.__name__
-				print("\033[0;31m-------------------------------------------------------")
-				print(f"\033[0;31m[FSM]: {name}\033[0m")
-				print("")
-				self.stateFunc()
-
-			self.root.update()
-
-		# self.root.mainloop()
+		self.root.after(1000, self._handler)
+		self.root.mainloop()
 
 	def _close(self):
 		"""Close the UI."""
 		self.changeGuiFunc("Closing...")
 		print("UI: closing")
-		self.isRunning = False
-		# self.root.destroy()
+		try:
+			self.root.destroy()
+		except Exception:
+			pass
 
 	def _sleep(self, s):
 		print(f"UI: Sleep: {s} sec")
